@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/vinay-singh-engineer/clipr/blob/main/LICENSE)
 [![CI](https://github.com/vinay-singh-engineer/clipr/actions/workflows/ci.yml/badge.svg)](https://github.com/vinay-singh-engineer/clipr/actions/workflows/ci.yml)
 
-A fast, async URL shortener built with FastAPI and PostgreSQL. Shorten URLs, track click counts, set expiry, and see rate limiting in action — all through a clean REST API with auto-generated Swagger docs.
+A fast, async URL shortener built with FastAPI, PostgreSQL, and Redis. Shorten URLs, track click counts, set expiry, and see per-IP rate limiting in action — all through a clean REST API with auto-generated Swagger docs.
 
 ---
 
@@ -17,7 +17,7 @@ Open `http://localhost:8000/docs` after starting the app to explore and test all
 
 Clipr takes a long URL and returns a 6-character short code. Anyone with the short URL is redirected to the original. Every redirect increments a click counter. URLs can optionally expire after a configurable number of days.
 
-Rate limiting is enforced per IP address on every endpoint — demonstrating production-grade API protection using `slowapi`.
+Rate limiting is enforced per IP address on every endpoint using `slowapi`, with counters stored in Redis — so limits persist across app restarts and work correctly across multiple instances.
 
 ---
 
