@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+import logging
+import time
 
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
@@ -10,13 +12,17 @@ from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 from app.database import get_db, engine, Base
+from app.logger import configure_logging
 from app.schemas import ShortenRequest, ShortenResponse, StatsResponse
 from app import crud
 from app.limiter import limiter
 
+logger = logging.getLogger("clipr")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    configure_logging()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -30,6 +36,22 @@ app = FastAPI(
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    logger.info(
+        "http request",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "duration_ms": round((time.perf_counter() - start) * 1000, 2),
+        },
+    )
+    return response
 
 
 @app.get("/health")
