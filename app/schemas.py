@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Optional
+from typing import Annotated, Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class ShortenRequest(BaseModel):
-    url: HttpUrl
+    url: Annotated[HttpUrl, Field(max_length=2048)]
     ttl_days: Optional[int] = None
 
 

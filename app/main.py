@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Depends, HTTPException, Request
@@ -13,19 +14,22 @@ from app.schemas import ShortenRequest, ShortenResponse, StatsResponse
 from app import crud
 from app.limiter import limiter
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+
 app = FastAPI(
     title="Clipr",
     description="A fast, async URL shortener with rate limiting.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 
 @app.get("/health")
