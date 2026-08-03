@@ -75,7 +75,7 @@ FastAPI (app/main.py)       ← routes, rate limiting, startup
 ### Prerequisites
 
 - Docker and Docker Compose
-- Python 3.9+
+- Python 3.10+
 
 ### 1. Clone and configure
 
