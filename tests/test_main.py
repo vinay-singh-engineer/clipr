@@ -95,3 +95,10 @@ async def test_stats_not_found(client):
 async def test_shorten_missing_body(client):
     resp = await client.post("/shorten", json={})
     assert resp.status_code == 422
+
+
+async def test_redirect_expired(client):
+    resp = await client.post("/shorten", json={"url": "https://example.com", "ttl_days": -1})
+    code = resp.json()["code"]
+    resp2 = await client.get(f"/{code}", follow_redirects=False)
+    assert resp2.status_code == 410
