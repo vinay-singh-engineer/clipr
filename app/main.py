@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Clipr",
     description="A fast, async URL shortener with rate limiting.",
-    version="1.0.0",
+    version="1.0.1",
     lifespan=lifespan,
 )
 app.state.limiter = limiter
